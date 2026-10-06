@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "B4P Youth"
+description = "A responsive, installable youth platform for Business for Peace Community Development Foundation. Young people can discover opportunities, join programs and events, manage their profiles, and stay informed; administrators can manage the content and applications."
+version = "1.0.0"
+id = "artifacts/b4p-youth"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20977
+
+[services.development]
+run = "pnpm --filter @workspace/b4p-youth run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/b4p-youth", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/b4p-youth/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20977"
+BASE_PATH = "/"

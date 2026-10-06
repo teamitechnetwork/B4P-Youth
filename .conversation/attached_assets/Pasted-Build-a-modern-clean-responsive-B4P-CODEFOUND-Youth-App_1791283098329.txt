@@ -1,0 +1,438 @@
+Build a modern, clean, responsive B4P CODEFOUND Youth App – Version 1 for:
+
+Business for Peace Community Development Foundation (B4P CODEFOUND)
+
+B4P CODEFOUND is a youth- and women-focused nonprofit organization. The purpose of this app is to give young people one simple platform where they can discover B4P programs, opportunities, events, announcements, and manage their basic profile.
+
+IMPORTANT
+
+This is Version 1. Keep the application simple, lightweight, professional, and easy to use.
+
+Do NOT add unnecessary advanced features such as:
+
+- Chat/messaging
+- AI assistants
+- Mentorship matching
+- Discussion forums
+- Online payments
+- Complex LMS
+- Complex social networking
+- Advanced analytics
+- Cryptocurrency
+- Marketplace
+
+Those can be added in future versions.
+
+PLATFORM
+
+Build it as a responsive Progressive Web App (PWA) that works properly on:
+
+- Android phones
+- iPhones
+- Tablets
+- Desktop computers
+- Laptop computers
+
+The interface must automatically adapt to screen size.
+
+Use:
+
+- Bottom navigation for mobile
+- Sidebar navigation for desktop/tablet
+- Responsive cards and layouts
+- Touch-friendly buttons
+- Clean modern typography
+- Fast loading
+- Professional nonprofit/youth-oriented design
+
+MAIN NAVIGATION
+
+Mobile Bottom Navigation
+
+1. Home
+2. Opportunities
+3. Programs
+4. Events
+5. Profile
+
+Include a hamburger menu for additional pages.
+
+Desktop Sidebar
+
+- Dashboard/Home
+- Opportunities
+- Programs
+- Events
+- Notifications
+- Profile
+- About B4P
+- Contact
+- Logout
+
+1. HOME / DASHBOARD
+
+Create a welcoming dashboard.
+
+Include:
+
+- B4P CODEFOUND logo
+- Welcome message
+- Short introduction to B4P
+- Featured opportunities
+- Featured programs
+- Upcoming events
+- Latest announcements
+- Quick buttons:
+  - Explore Opportunities
+  - View Programs
+  - Upcoming Events
+
+Example welcome text:
+
+"Welcome to B4P CODEFOUND"
+
+"Connect with opportunities, programs, and events designed to support young people and communities."
+
+2. USER REGISTRATION & LOGIN
+
+Allow young people to:
+
+- Create an account
+- Login
+- Logout
+- Reset password
+
+Registration fields:
+
+- Full name
+- Email
+- Phone number
+- Gender
+- Country
+- County
+- City
+- Date of birth
+- Education level
+- Skills/interests
+- Password
+
+Keep registration simple.
+
+3. USER PROFILE
+
+Each registered youth should have a profile.
+
+Display:
+
+- Profile photo
+- Full name
+- Email
+- Phone
+- Location
+- Education
+- Skills/interests
+
+Allow users to edit their profile.
+
+Include a simple profile completion indicator.
+
+4. OPPORTUNITIES
+
+Create an Opportunities section where B4P administrators can publish:
+
+- Jobs
+- Internships
+- Scholarships
+- Fellowships
+- Trainings
+- Grants
+- Volunteer opportunities
+
+Each opportunity should have:
+
+- Title
+- Category
+- Organization
+- Description
+- Requirements
+- Location
+- Deadline
+- Application link or Apply button
+- Date posted
+
+Users should be able to:
+
+- View opportunities
+- Search opportunities
+- Filter by category
+- Open opportunity details
+- Apply using the provided application method
+
+Use attractive opportunity cards.
+
+5. PROGRAMS
+
+Create a Programs section for official B4P programs.
+
+Each program should contain:
+
+- Program name
+- Cover image
+- Description
+- Objectives
+- Eligibility
+- Location
+- Start date
+- End date
+- Application deadline
+- Apply button
+
+Users should be able to submit a simple program application.
+
+After applying, display:
+
+Application Status
+
+Possible statuses:
+
+- Submitted
+- Under Review
+- Accepted
+- Rejected
+
+Users should be able to view their application status from their profile/dashboard.
+
+6. EVENTS
+
+Create an Events section.
+
+Each event should show:
+
+- Event title
+- Event image
+- Date
+- Time
+- Location
+- Description
+- Registration button
+
+Users can register for an event.
+
+After registration, show:
+
+"Registration Successful"
+
+7. NOTIFICATIONS
+
+Create a simple notification system.
+
+Notifications can include:
+
+- New opportunity
+- New program
+- New event
+- Application status update
+- Important B4P announcement
+
+Users should be able to mark notifications as read.
+
+8. ABOUT B4P
+
+Create an About page containing:
+
+- B4P CODEFOUND name
+- Organization description
+- Mission
+- Vision
+- Core focus areas
+- Youth and women empowerment information
+
+Keep the content editable from the admin panel.
+
+9. CONTACT
+
+Create a simple Contact page.
+
+Include:
+
+- Email
+- Phone
+- Address/location
+- Social media links
+- Contact form
+
+The contact form should collect:
+
+- Name
+- Email
+- Subject
+- Message
+
+10. ADMIN PANEL
+
+Create a secure admin dashboard.
+
+Admin navigation:
+
+- Dashboard
+- Users
+- Opportunities
+- Programs
+- Program Applications
+- Events
+- Event Registrations
+- Notifications
+- Contact Messages
+- Settings
+
+Admin capabilities:
+
+Users
+
+- View users
+- Search users
+- View user profiles
+- Activate/deactivate users
+
+Opportunities
+
+- Create opportunity
+- Edit opportunity
+- Delete opportunity
+- Publish/unpublish opportunity
+
+Programs
+
+- Create program
+- Edit program
+- Delete program
+- Publish/unpublish program
+- View applications
+
+Applications
+
+- View submitted applications
+- Search/filter applications
+- Change application status
+- Add simple admin notes
+
+Events
+
+- Create event
+- Edit event
+- Delete event
+- View registrations
+
+Notifications
+
+Allow administrators to publish simple announcements/notifications to users.
+
+DATABASE
+
+Use a proper relational database.
+
+Create tables/models for:
+
+- users
+- opportunities
+- programs
+- applications
+- events
+- event_registrations
+- notifications
+- contact_messages
+- admins
+
+Use secure authentication.
+
+Never store passwords as plain text.
+
+DESIGN
+
+The design should feel:
+
+- Professional
+- Youth-friendly
+- Clean
+- Modern
+- Simple
+- Trustworthy
+- NGO-focused
+
+Use B4P CODEFOUND branding where possible.
+
+Avoid excessive animations.
+
+Use cards, clean spacing, rounded corners, icons, and clear typography.
+
+The application must look professional on both a small Android phone and a large desktop monitor.
+
+SECURITY
+
+Implement:
+
+- Secure authentication
+- Password hashing
+- Protected admin routes
+- Role-based access
+- Input validation
+- Protection against unauthorized admin access
+- Secure database queries
+- Environment variables for secrets
+
+Never expose database credentials or API keys in frontend code.
+
+PWA
+
+Configure the application as a Progressive Web App.
+
+Include:
+
+- Web app manifest
+- App icon
+- Installable experience
+- Responsive layout
+- Mobile-friendly interface
+
+The app name should be:
+
+B4P Youth
+
+Organization:
+
+Business for Peace Community Development Foundation
+
+DEVELOPMENT REQUIREMENTS
+
+Before finishing:
+
+1. Make sure registration works.
+2. Make sure login/logout works.
+3. Make sure users can edit profiles.
+4. Make sure admins can create opportunities.
+5. Make sure admins can create programs.
+6. Make sure users can submit program applications.
+7. Make sure application status can be updated by admins.
+8. Make sure admins can create events.
+9. Make sure users can register for events.
+10. Make sure notifications work.
+11. Make sure contact messages reach the admin.
+12. Test the application on mobile, tablet, and desktop layouts.
+13. Remove all unnecessary demo data before production.
+14. Add clear empty states when there are no opportunities, programs, or events.
+15. Make sure there are no broken links, buttons, forms, or navigation items.
+
+DEVELOPMENT APPROACH
+
+Build the application in a clean, modular structure so future versions can add:
+
+- Mentorship
+- Courses
+- Certificates
+- Community/forum
+- Messaging
+- Advanced youth services
+
+But DO NOT build those features now.
+
+Focus entirely on delivering a stable, professional B4P Youth App Version 1.

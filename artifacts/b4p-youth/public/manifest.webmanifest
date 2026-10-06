@@ -1,0 +1,15 @@
+{
+  "name": "B4P Youth",
+  "short_name": "B4P Youth",
+  "description": "A trusted home base for young people and women to find their next step.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f6ef",
+  "theme_color": "#174c40",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "./icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

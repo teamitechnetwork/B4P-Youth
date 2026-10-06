@@ -3,20 +3,26 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: B4P Youth API. Public reads and contact submission are open; /me routes require a signed-in youth account and /admin routes require an administrator.
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: public
+  - name: profile
+  - name: opportunities
+  - name: programs
+  - name: events
+  - name: notifications
+  - name: contact
+  - name: admin
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +30,1042 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [profile]
+      summary: Get youth dashboard content and their current applications
+      responses:
+        "200":
+          description: Dashboard overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dashboard"
+  /me:
+    get:
+      operationId: getMyProfile
+      tags: [profile]
+      summary: Get the signed-in youth profile
+      responses:
+        "200":
+          description: Current profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+    patch:
+      operationId: updateMyProfile
+      tags: [profile]
+      summary: Update the signed-in youth profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdate"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+  /me/applications:
+    get:
+      operationId: listMyApplications
+      tags: [programs, profile]
+      summary: List program applications belonging to the signed-in youth
+      responses:
+        "200":
+          description: Applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProgramApplication"
+  /opportunities:
+    get:
+      operationId: listOpportunities
+      tags: [opportunities]
+      summary: List published opportunities
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: category
+          schema:
+            $ref: "#/components/schemas/OpportunityCategory"
+      responses:
+        "200":
+          description: Matching opportunities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Opportunity"
+  /opportunities/{id}:
+    get:
+      operationId: getOpportunity
+      tags: [opportunities]
+      summary: Get a published opportunity
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Opportunity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Opportunity"
+        "404": { $ref: "#/components/responses/NotFound" }
+  /programs:
+    get:
+      operationId: listPrograms
+      tags: [programs]
+      summary: List published programs
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+      responses:
+        "200":
+          description: Matching programs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Program"
+  /programs/{id}:
+    get:
+      operationId: getProgram
+      tags: [programs]
+      summary: Get a published program
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Program
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+        "404": { $ref: "#/components/responses/NotFound" }
+  /programs/{id}/applications:
+    post:
+      operationId: submitProgramApplication
+      tags: [programs]
+      summary: Apply to a published program
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgramApplicationInput"
+      responses:
+        "201":
+          description: Submitted application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramApplication"
+        "409": { $ref: "#/components/responses/Conflict" }
+  /events:
+    get:
+      operationId: listEvents
+      tags: [events]
+      summary: List published events
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+      responses:
+        "200":
+          description: Matching events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Event"
+  /events/{id}:
+    get:
+      operationId: getEvent
+      tags: [events]
+      summary: Get a published event
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "404": { $ref: "#/components/responses/NotFound" }
+  /events/{id}/registrations:
+    post:
+      operationId: registerForEvent
+      tags: [events]
+      summary: Register the signed-in youth for an event
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "201":
+          description: Event registration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventRegistration"
+        "409": { $ref: "#/components/responses/Conflict" }
+  /me/notifications:
+    get:
+      operationId: listMyNotifications
+      tags: [notifications]
+      summary: List notifications for the signed-in youth
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+  /me/notifications/{id}:
+    patch:
+      operationId: markMyNotificationRead
+      tags: [notifications]
+      summary: Mark a notification as read
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NotificationReadUpdate"
+      responses:
+        "200":
+          description: Updated notification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+  /about:
+    get:
+      operationId: getAbout
+      tags: [public]
+      summary: Get public organization information and contact details
+      responses:
+        "200":
+          description: B4P CODEFOUND information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationSettings"
+  /contact-messages:
+    post:
+      operationId: sendContactMessage
+      tags: [contact]
+      summary: Send a message to B4P CODEFOUND
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactMessageInput"
+      responses:
+        "201":
+          description: Message received
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactMessageReceipt"
+  /admin/dashboard:
+    get:
+      operationId: getAdminDashboard
+      tags: [admin]
+      summary: Get administrator dashboard counts and recent applications
+      responses:
+        "200":
+          description: Admin overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDashboard"
+  /admin/users:
+    get:
+      operationId: listUsers
+      tags: [admin]
+      summary: Search and list youth accounts
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+      responses:
+        "200":
+          description: Users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminUser"
+  /admin/users/{id}:
+    get:
+      operationId: getUser
+      tags: [admin]
+      summary: View a youth account
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+    patch:
+      operationId: updateUserStatus
+      tags: [admin]
+      summary: Activate or deactivate a youth account
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserStatusUpdate"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+  /admin/opportunities:
+    get:
+      operationId: listAdminOpportunities
+      tags: [admin, opportunities]
+      summary: List all opportunities, including drafts
+      responses:
+        "200":
+          description: Opportunities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Opportunity"
+    post:
+      operationId: createOpportunity
+      tags: [admin, opportunities]
+      summary: Create an opportunity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpportunityInput"
+      responses:
+        "201":
+          description: Created opportunity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Opportunity"
+  /admin/opportunities/{id}:
+    patch:
+      operationId: updateOpportunity
+      tags: [admin, opportunities]
+      summary: Edit or publish an opportunity
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpportunityUpdate"
+      responses:
+        "200":
+          description: Updated opportunity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Opportunity"
+    delete:
+      operationId: deleteOpportunity
+      tags: [admin, opportunities]
+      summary: Delete an opportunity
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204": { description: Opportunity deleted }
+  /admin/programs:
+    get:
+      operationId: listAdminPrograms
+      tags: [admin, programs]
+      summary: List all programs, including drafts
+      responses:
+        "200":
+          description: Programs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Program"
+    post:
+      operationId: createProgram
+      tags: [admin, programs]
+      summary: Create a B4P program
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgramInput"
+      responses:
+        "201":
+          description: Created program
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+  /admin/programs/{id}:
+    patch:
+      operationId: updateProgram
+      tags: [admin, programs]
+      summary: Edit or publish a program
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgramUpdate"
+      responses:
+        "200":
+          description: Updated program
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+    delete:
+      operationId: deleteProgram
+      tags: [admin, programs]
+      summary: Delete a program
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204": { description: Program deleted }
+  /admin/applications:
+    get:
+      operationId: listAdminApplications
+      tags: [admin, programs]
+      summary: Search and filter all program applications
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: status
+          schema:
+            $ref: "#/components/schemas/ApplicationStatus"
+      responses:
+        "200":
+          description: Applications with applicant profile
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminApplication"
+  /admin/applications/{id}:
+    patch:
+      operationId: updateApplication
+      tags: [admin, programs]
+      summary: Update an application status and optional admin note
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationUpdate"
+      responses:
+        "200":
+          description: Updated application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminApplication"
+  /admin/events:
+    get:
+      operationId: listAdminEvents
+      tags: [admin, events]
+      summary: List all events, including drafts
+      responses:
+        "200":
+          description: Events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Event"
+    post:
+      operationId: createEvent
+      tags: [admin, events]
+      summary: Create an event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventInput"
+      responses:
+        "201":
+          description: Created event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+  /admin/events/{id}:
+    patch:
+      operationId: updateEvent
+      tags: [admin, events]
+      summary: Edit or publish an event
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventUpdate"
+      responses:
+        "200":
+          description: Updated event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+    delete:
+      operationId: deleteEvent
+      tags: [admin, events]
+      summary: Delete an event
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204": { description: Event deleted }
+  /admin/event-registrations:
+    get:
+      operationId: listEventRegistrations
+      tags: [admin, events]
+      summary: View event registrations
+      parameters:
+        - in: query
+          name: eventId
+          schema: { type: integer }
+        - in: query
+          name: search
+          schema: { type: string }
+      responses:
+        "200":
+          description: Event registrations with attendee profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminEventRegistration"
+  /admin/notifications:
+    post:
+      operationId: publishNotification
+      tags: [admin, notifications]
+      summary: Publish an announcement notification to all active youth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NotificationInput"
+      responses:
+        "201":
+          description: Published notification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationReceipt"
+  /admin/contact-messages:
+    get:
+      operationId: listContactMessages
+      tags: [admin, contact]
+      summary: List messages submitted through the public contact form
+      responses:
+        "200":
+          description: Contact messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContactMessage"
+  /admin/contact-messages/{id}:
+    patch:
+      operationId: updateContactMessage
+      tags: [admin, contact]
+      summary: Update the handling status of a contact message
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactMessageUpdate"
+      responses:
+        "200":
+          description: Updated message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactMessage"
+  /admin/settings:
+    get:
+      operationId: getAdminSettings
+      tags: [admin]
+      summary: Get editable organization and contact information
+      responses:
+        "200":
+          description: Organization settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationSettings"
+    patch:
+      operationId: updateAdminSettings
+      tags: [admin]
+      summary: Edit About B4P and contact information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrganizationSettingsUpdate"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationSettings"
 components:
+  parameters:
+    Id:
+      in: path
+      name: id
+      required: true
+      schema: { type: integer, minimum: 1 }
+  responses:
+    NotFound:
+      description: Record not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Conflict:
+      description: Duplicate or conflicting request
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
   schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
     HealthStatus:
       type: object
+      required: [status]
       properties:
-        status:
-          type: string
-      required:
-        - status
-
+        status: { type: string }
+    OpportunityCategory:
+      type: string
+      enum: [Jobs, Internships, Scholarships, Fellowships, Trainings, Grants, Volunteer]
+    ApplicationStatus:
+      type: string
+      enum: [Submitted, Under Review, Accepted, Rejected]
+    UserProfile:
+      type: object
+      required: [id, fullName, email, phone, gender, country, county, city, dateOfBirth, educationLevel, interests, imageUrl, active, createdAt]
+      properties:
+        id: { type: integer }
+        fullName: { type: string }
+        email: { type: string, format: email }
+        phone: { type: string }
+        gender: { type: string }
+        country: { type: string }
+        county: { type: string }
+        city: { type: string }
+        dateOfBirth: { type: string, format: date }
+        educationLevel: { type: string }
+        interests:
+          type: array
+          items: { type: string }
+        imageUrl: { type: ["string", "null"], format: uri }
+        active: { type: boolean }
+        createdAt: { type: string, format: date-time }
+    ProfileUpdate:
+      type: object
+      required: [fullName, phone, gender, country, county, city, dateOfBirth, educationLevel, interests]
+      properties:
+        fullName: { type: string, minLength: 1, maxLength: 160 }
+        phone: { type: string, minLength: 1, maxLength: 40 }
+        gender: { type: string, maxLength: 50 }
+        country: { type: string, minLength: 1, maxLength: 100 }
+        county: { type: string, maxLength: 100 }
+        city: { type: string, maxLength: 100 }
+        dateOfBirth: { type: string, format: date }
+        educationLevel: { type: string, maxLength: 120 }
+        interests:
+          type: array
+          items: { type: string, maxLength: 100 }
+    Opportunity:
+      type: object
+      required: [id, title, category, organization, description, requirements, location, deadline, applicationUrl, datePosted, published]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        category: { $ref: "#/components/schemas/OpportunityCategory" }
+        organization: { type: string }
+        description: { type: string }
+        requirements: { type: string }
+        location: { type: string }
+        deadline: { type: ["string", "null"], format: date }
+        applicationUrl: { type: ["string", "null"], format: uri }
+        datePosted: { type: string, format: date-time }
+        published: { type: boolean }
+    OpportunityInput:
+      type: object
+      required: [title, category, organization, description, requirements, location, published]
+      properties:
+        title: { type: string, minLength: 2, maxLength: 200 }
+        category: { $ref: "#/components/schemas/OpportunityCategory" }
+        organization: { type: string, minLength: 1, maxLength: 200 }
+        description: { type: string, minLength: 1 }
+        requirements: { type: string }
+        location: { type: string, minLength: 1, maxLength: 200 }
+        deadline: { type: ["string", "null"], format: date }
+        applicationUrl: { type: ["string", "null"], format: uri }
+        published: { type: boolean }
+    OpportunityUpdate:
+      type: object
+      properties:
+        title: { type: string, minLength: 2, maxLength: 200 }
+        category: { $ref: "#/components/schemas/OpportunityCategory" }
+        organization: { type: string, minLength: 1, maxLength: 200 }
+        description: { type: string, minLength: 1 }
+        requirements: { type: string }
+        location: { type: string, minLength: 1, maxLength: 200 }
+        deadline: { type: ["string", "null"], format: date }
+        applicationUrl: { type: ["string", "null"], format: uri }
+        published: { type: boolean }
+    Program:
+      type: object
+      required: [id, name, coverImage, description, objectives, eligibility, location, startDate, endDate, applicationDeadline, published]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        coverImage: { type: ["string", "null"], format: uri }
+        description: { type: string }
+        objectives: { type: string }
+        eligibility: { type: string }
+        location: { type: string }
+        startDate: { type: ["string", "null"], format: date }
+        endDate: { type: ["string", "null"], format: date }
+        applicationDeadline: { type: ["string", "null"], format: date }
+        published: { type: boolean }
+    ProgramInput:
+      type: object
+      required: [name, description, objectives, eligibility, location, published]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 200 }
+        coverImage: { type: ["string", "null"], format: uri }
+        description: { type: string, minLength: 1 }
+        objectives: { type: string }
+        eligibility: { type: string }
+        location: { type: string, minLength: 1, maxLength: 200 }
+        startDate: { type: ["string", "null"], format: date }
+        endDate: { type: ["string", "null"], format: date }
+        applicationDeadline: { type: ["string", "null"], format: date }
+        published: { type: boolean }
+    ProgramUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 2, maxLength: 200 }
+        coverImage: { type: ["string", "null"], format: uri }
+        description: { type: string, minLength: 1 }
+        objectives: { type: string }
+        eligibility: { type: string }
+        location: { type: string, minLength: 1, maxLength: 200 }
+        startDate: { type: ["string", "null"], format: date }
+        endDate: { type: ["string", "null"], format: date }
+        applicationDeadline: { type: ["string", "null"], format: date }
+        published: { type: boolean }
+    ProgramApplicationInput:
+      type: object
+      required: [motivation]
+      properties:
+        motivation: { type: string, minLength: 20, maxLength: 5000 }
+    ProgramApplication:
+      type: object
+      required: [id, programId, programName, status, motivation, adminNote, submittedAt]
+      properties:
+        id: { type: integer }
+        programId: { type: integer }
+        programName: { type: string }
+        status: { $ref: "#/components/schemas/ApplicationStatus" }
+        motivation: { type: string }
+        adminNote: { type: ["string", "null"] }
+        submittedAt: { type: string, format: date-time }
+    AdminApplication:
+      allOf:
+        - $ref: "#/components/schemas/ProgramApplication"
+        - type: object
+          required: [userId, applicantName, applicantEmail, applicantLocation]
+          properties:
+            userId: { type: integer }
+            applicantName: { type: string }
+            applicantEmail: { type: string, format: email }
+            applicantLocation: { type: string }
+    ApplicationUpdate:
+      type: object
+      required: [status]
+      properties:
+        status: { $ref: "#/components/schemas/ApplicationStatus" }
+        adminNote: { type: ["string", "null"], maxLength: 3000 }
+    Event:
+      type: object
+      required: [id, title, imageUrl, date, time, location, description, published]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        imageUrl: { type: ["string", "null"], format: uri }
+        date: { type: string, format: date }
+        time: { type: string }
+        location: { type: string }
+        description: { type: string }
+        published: { type: boolean }
+    EventInput:
+      type: object
+      required: [title, date, time, location, description, published]
+      properties:
+        title: { type: string, minLength: 2, maxLength: 200 }
+        imageUrl: { type: ["string", "null"], format: uri }
+        date: { type: string, format: date }
+        time: { type: string, minLength: 1, maxLength: 100 }
+        location: { type: string, minLength: 1, maxLength: 200 }
+        description: { type: string, minLength: 1 }
+        published: { type: boolean }
+    EventUpdate:
+      type: object
+      properties:
+        title: { type: string, minLength: 2, maxLength: 200 }
+        imageUrl: { type: ["string", "null"], format: uri }
+        date: { type: string, format: date }
+        time: { type: string, minLength: 1, maxLength: 100 }
+        location: { type: string, minLength: 1, maxLength: 200 }
+        description: { type: string, minLength: 1 }
+        published: { type: boolean }
+    EventRegistration:
+      type: object
+      required: [id, eventId, eventTitle, eventDate, registeredAt]
+      properties:
+        id: { type: integer }
+        eventId: { type: integer }
+        eventTitle: { type: string }
+        eventDate: { type: string, format: date }
+        registeredAt: { type: string, format: date-time }
+    AdminEventRegistration:
+      allOf:
+        - $ref: "#/components/schemas/EventRegistration"
+        - type: object
+          required: [userId, attendeeName, attendeeEmail, attendeePhone]
+          properties:
+            userId: { type: integer }
+            attendeeName: { type: string }
+            attendeeEmail: { type: string, format: email }
+            attendeePhone: { type: string }
+    Notification:
+      type: object
+      required: [id, type, title, body, createdAt, readAt]
+      properties:
+        id: { type: integer }
+        type: { type: string, enum: [opportunity, program, event, application, announcement] }
+        title: { type: string }
+        body: { type: string }
+        createdAt: { type: string, format: date-time }
+        readAt: { type: ["string", "null"], format: date-time }
+    NotificationReadUpdate:
+      type: object
+      required: [read]
+      properties:
+        read: { type: boolean }
+    NotificationInput:
+      type: object
+      required: [title, body]
+      properties:
+        title: { type: string, minLength: 2, maxLength: 200 }
+        body: { type: string, minLength: 1, maxLength: 5000 }
+    NotificationReceipt:
+      type: object
+      required: [recipients]
+      properties:
+        recipients: { type: integer }
+    ContactMessageInput:
+      type: object
+      required: [name, email, subject, message]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 160 }
+        email: { type: string, format: email }
+        subject: { type: string, minLength: 2, maxLength: 200 }
+        message: { type: string, minLength: 5, maxLength: 5000 }
+    ContactMessageReceipt:
+      type: object
+      required: [received]
+      properties:
+        received: { type: boolean }
+    ContactMessage:
+      allOf:
+        - $ref: "#/components/schemas/ContactMessageInput"
+        - type: object
+          required: [id, status, createdAt]
+          properties:
+            id: { type: integer }
+            status: { type: string, enum: [new, read, replied] }
+            createdAt: { type: string, format: date-time }
+    ContactMessageUpdate:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [new, read, replied] }
+    OrganizationSettings:
+      type: object
+      required: [name, description, mission, vision, focusAreas, empowermentInfo, contactEmail, phone, address, socialLinks]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        mission: { type: string }
+        vision: { type: string }
+        focusAreas:
+          type: array
+          items: { type: string }
+        empowermentInfo: { type: string }
+        contactEmail:
+          anyOf:
+            - type: string
+              format: email
+            - type: "null"
+        phone: { type: string }
+        address: { type: string }
+        socialLinks:
+          type: array
+          items:
+            type: object
+            required: [label, url]
+            properties:
+              label: { type: string }
+              url: { type: string, format: uri }
+    OrganizationSettingsUpdate:
+      type: object
+      required: [name, description, mission, vision, focusAreas, empowermentInfo, contactEmail, phone, address, socialLinks]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 200 }
+        description: { type: string, minLength: 1, maxLength: 5000 }
+        mission: { type: string, minLength: 1, maxLength: 3000 }
+        vision: { type: string, minLength: 1, maxLength: 3000 }
+        focusAreas:
+          type: array
+          items: { type: string, maxLength: 160 }
+        empowermentInfo: { type: string, minLength: 1, maxLength: 5000 }
+        contactEmail:
+          anyOf:
+            - type: string
+              format: email
+            - type: "null"
+        phone: { type: string, maxLength: 100 }
+        address: { type: string, maxLength: 500 }
+        socialLinks:
+          type: array
+          items:
+            type: object
+            required: [label, url]
+            properties:
+              label: { type: string, minLength: 1, maxLength: 60 }
+              url: { type: string, format: uri }
+    ProfileCompletion:
+      type: object
+      required: [completed, total, percent]
+      properties:
+        completed: { type: integer }
+        total: { type: integer }
+        percent: { type: integer }
+    Dashboard:
+      type: object
+      required: [profile, profileCompletion, featuredOpportunities, featuredPrograms, upcomingEvents, recentNotifications, applications]
+      properties:
+        profile: { $ref: "#/components/schemas/UserProfile" }
+        profileCompletion: { $ref: "#/components/schemas/ProfileCompletion" }
+        featuredOpportunities:
+          type: array
+          items: { $ref: "#/components/schemas/Opportunity" }
+        featuredPrograms:
+          type: array
+          items: { $ref: "#/components/schemas/Program" }
+        upcomingEvents:
+          type: array
+          items: { $ref: "#/components/schemas/Event" }
+        recentNotifications:
+          type: array
+          items: { $ref: "#/components/schemas/Notification" }
+        applications:
+          type: array
+          items: { $ref: "#/components/schemas/ProgramApplication" }
+    AdminDashboard:
+      type: object
+      required: [users, publishedOpportunities, publishedPrograms, upcomingEvents, pendingApplications, newMessages, recentApplications]
+      properties:
+        users: { type: integer }
+        publishedOpportunities: { type: integer }
+        publishedPrograms: { type: integer }
+        upcomingEvents: { type: integer }
+        pendingApplications: { type: integer }
+        newMessages: { type: integer }
+        recentApplications:
+          type: array
+          items: { $ref: "#/components/schemas/AdminApplication" }
+    AdminUser:
+      allOf:
+        - $ref: "#/components/schemas/UserProfile"
+        - type: object
+          required: [applicationCount, eventRegistrationCount]
+          properties:
+            applicationCount: { type: integer }
+            eventRegistrationCount: { type: integer }
+    UserStatusUpdate:
+      type: object
+      required: [active]
+      properties:
+        active: { type: boolean }

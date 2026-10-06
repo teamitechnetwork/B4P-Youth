@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+@layer theme, base, clerk, components, utilities;
+@import 'tailwindcss';
+@import '@clerk/themes/shadcn.css';
+@import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+:root {
+  --background: 42 42% 96%;
+  --foreground: 167 34% 16%;
+  --border: 38 22% 86%;
+  --input: 38 22% 86%;
+  --card: 42 40% 99%;
+  --card-foreground: 167 34% 16%;
+  --popover: 42 40% 99%;
+  --popover-foreground: 167 34% 16%;
+  --primary: 165 54% 25%;
+  --primary-foreground: 42 42% 96%;
+  --secondary: 35 78% 58%;
+  --secondary-foreground: 167 34% 16%;
+  --muted: 39 24% 91%;
+  --muted-foreground: 166 13% 43%;
+  --accent: 11 54% 62%;
+  --accent-foreground: 42 42% 96%;
+  --destructive: 2 61% 49%;
+  --destructive-foreground: 42 42% 96%;
+  --ring: 165 54% 25%;
+  --sidebar: 165 42% 19%;
+  --sidebar-foreground: 42 37% 93%;
+  --sidebar-border: 164 29% 28%;
+  --sidebar-primary: 35 78% 58%;
+  --sidebar-primary-foreground: 167 34% 16%;
+  --sidebar-accent: 164 31% 27%;
+  --sidebar-accent-foreground: 42 37% 95%;
+  --chart-1: 165 54% 25%;
+  --chart-2: 35 78% 58%;
+  --chart-3: 11 54% 62%;
+  --chart-4: 198 31% 46%;
+  --chart-5: 76 33% 47%;
+  --app-font-sans: 'DM Sans', sans-serif;
+  --app-font-serif: 'Manrope', sans-serif;
+  --app-font-mono: 'DM Sans', monospace;
+  --radius: .9rem;
+}
+.dark {
+  --background: 167 25% 12%; --foreground: 42 35% 93%; --border: 165 20% 26%; --input: 165 20% 26%;
+  --card: 166 23% 15%; --card-foreground: 42 35% 93%; --popover: 166 23% 15%; --popover-foreground: 42 35% 93%;
+  --primary: 35 78% 58%; --primary-foreground: 167 34% 16%; --secondary: 165 28% 27%; --secondary-foreground: 42 35% 93%;
+  --muted: 166 20% 20%; --muted-foreground: 160 14% 67%; --accent: 11 54% 62%; --accent-foreground: 42 35% 93%;
+  --destructive: 2 61% 54%; --destructive-foreground: 42 42% 96%; --ring: 35 78% 58%;
+}
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground antialiased; font-family: var(--app-font-sans); }
+  button, a { -webkit-tap-highlight-color: transparent; }
+}
+.font-display { font-family: var(--app-font-serif); }
+.page-enter { animation: enter .35s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.grain::after { content:''; position:fixed; inset:0; z-index:40; pointer-events:none; opacity:.025; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E"); }
+.line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
