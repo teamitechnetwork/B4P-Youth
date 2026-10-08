@@ -8,6 +8,8 @@ export const eventsTable = pgTable("events", {
   title: text("title").notNull(),
   imageUrl: text("image_url"),
   date: date("date", { mode: "string" }).notNull(),
+  registrationDeadline: date("registration_deadline", { mode: "string" }),
+  registrationUrl: text("registration_url"),
   time: text("time").notNull(),
   location: text("location").notNull(),
   description: text("description").notNull(),

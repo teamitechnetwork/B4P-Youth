@@ -58,6 +58,8 @@ import {
   db,
   eventRegistrationsTable,
   eventsTable,
+  applicationFormsTable,
+  applicationSubmissionsTable,
   notificationsTable,
   opportunitiesTable,
   organizationSettingsTable,
@@ -110,13 +112,14 @@ function eventRegistrationView(
 }
 
 async function adminUserView(user: typeof usersTable.$inferSelect) {
-  const [applications, registrations] = await Promise.all([
+  const [programApplications, formApplications, registrations] = await Promise.all([
     db.select({ id: applicationsTable.id }).from(applicationsTable).where(eq(applicationsTable.userId, user.id)),
+    db.select({ id: applicationSubmissionsTable.id }).from(applicationSubmissionsTable).where(eq(applicationSubmissionsTable.userId, user.id)),
     db.select({ id: eventRegistrationsTable.id }).from(eventRegistrationsTable).where(eq(eventRegistrationsTable.userId, user.id)),
   ]);
   return {
     ...profileResponse(user),
-    applicationCount: applications.length,
+    applicationCount: programApplications.length + formApplications.length,
     eventRegistrationCount: registrations.length,
   };
 }
@@ -143,7 +146,7 @@ async function saveNotificationToAllUsers(type: string, title: string, body: str
 
 router.get("/admin/dashboard", async (_req, res): Promise<void> => {
   const today = new Date().toISOString().slice(0, 10);
-  const [users, opportunities, programs, upcomingEvents, applications, messages, recentRows] = await Promise.all([
+  const [users, opportunities, programs, upcomingEvents, applications, formApplications, publishedForms, messages, recentRows, recentSubmissionRows] = await Promise.all([
     db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.active, true)),
     db.select({ id: opportunitiesTable.id }).from(opportunitiesTable).where(eq(opportunitiesTable.published, true)),
     db.select({ id: programsTable.id }).from(programsTable).where(eq(programsTable.published, true)),
@@ -152,21 +155,42 @@ router.get("/admin/dashboard", async (_req, res): Promise<void> => {
       gte(eventsTable.date, today),
     )),
     db.select({ status: applicationsTable.status }).from(applicationsTable),
+    db.select({ status: applicationSubmissionsTable.status }).from(applicationSubmissionsTable),
+    db.select({ id: applicationFormsTable.id }).from(applicationFormsTable).where(eq(applicationFormsTable.published, true)),
     db.select({ id: contactMessagesTable.id }).from(contactMessagesTable).where(eq(contactMessagesTable.status, "new")),
     db.select({ application: applicationsTable, programName: programsTable.name, user: usersTable })
       .from(applicationsTable)
       .innerJoin(programsTable, eq(applicationsTable.programId, programsTable.id))
       .innerJoin(usersTable, eq(applicationsTable.userId, usersTable.id))
       .orderBy(desc(applicationsTable.submittedAt)).limit(6),
+    db.select({ submission: applicationSubmissionsTable, user: usersTable })
+      .from(applicationSubmissionsTable)
+      .innerJoin(usersTable, eq(applicationSubmissionsTable.userId, usersTable.id))
+      .orderBy(desc(applicationSubmissionsTable.submittedAt)).limit(6),
   ]);
   const result = {
     users: users.length,
+    publishedApplications: publishedForms.length,
     publishedOpportunities: opportunities.length,
     publishedPrograms: programs.length,
     upcomingEvents: upcomingEvents.length,
-    pendingApplications: applications.filter((item) => item.status === "Submitted" || item.status === "Under Review").length,
+    pendingApplications: [...applications, ...formApplications]
+      .filter((item) => item.status === "Submitted" || item.status === "Under Review").length,
     newMessages: messages.length,
     recentApplications: recentRows.map((row) => applicationView(row.application, row.programName, row.user)),
+    recentSubmissions: recentSubmissionRows.map(({ submission, user }) => ({
+      id: submission.id,
+      formId: submission.formId,
+      formTitle: submission.formTitle,
+      status: submission.status,
+      adminNote: submission.adminNote,
+      submittedAt: submission.submittedAt.toISOString(),
+      userId: user.id,
+      applicantName: user.fullName,
+      applicantEmail: user.email,
+      applicantLocation: [user.city, user.county, user.country].filter(Boolean).join(", "),
+      answers: submission.answers,
+    })),
   };
   res.json(parseApiResponse(GetAdminDashboardResponse, result));
 });
@@ -410,6 +434,7 @@ router.post("/admin/events", async (req, res): Promise<void> => {
   const [row] = await db.insert(eventsTable).values({
     ...body.data,
     date: dateOnly(body.data.date)!,
+    registrationDeadline: dateOnly(body.data.registrationDeadline),
   }).returning();
   if (row.published) {
     await saveNotificationToAllUsers("event", "Upcoming B4P event", `${row.title} is coming up on ${row.date}.`);
@@ -429,10 +454,11 @@ router.patch("/admin/events/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Event not found" });
     return;
   }
-  const { date, ...fields } = body.data;
+  const { date, registrationDeadline, ...fields } = body.data;
   const [row] = await db.update(eventsTable).set({
     ...fields,
     ...(date !== undefined ? { date: dateOnly(date)! } : {}),
+    ...(registrationDeadline !== undefined ? { registrationDeadline: dateOnly(registrationDeadline) } : {}),
   })
     .where(eq(eventsTable.id, params.data.id)).returning();
   if (!previous.published && row.published) {

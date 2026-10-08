@@ -26,16 +26,22 @@ import {
 } from "drizzle-orm";
 import {
   applicationsTable,
+  applicationSubmissionsTable,
   db,
   eventRegistrationsTable,
   eventsTable,
   notificationsTable,
   opportunitiesTable,
   programsTable,
+  updatesTable,
   usersTable,
 } from "@workspace/db";
 
 const router: IRouter = Router();
+
+function todayDate() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 function applicationView(app: typeof applicationsTable.$inferSelect, programName: string) {
   return {
@@ -98,9 +104,11 @@ router.get("/dashboard", requireYouthProfile, async (req, res): Promise<void> =>
     user.interests.length > 0,
   ].filter(Boolean).length;
   const today = new Date().toISOString().slice(0, 10);
-  const [opportunities, programs, events, notifications, applications] = await Promise.all([
+  const [opportunities, opportunityCount, programs, events, notifications, programApplications, formApplications, updates] = await Promise.all([
     db.select().from(opportunitiesTable).where(eq(opportunitiesTable.published, true))
       .orderBy(desc(opportunitiesTable.datePosted)).limit(3),
+    db.select({ id: opportunitiesTable.id }).from(opportunitiesTable)
+      .where(eq(opportunitiesTable.published, true)),
     db.select().from(programsTable).where(eq(programsTable.published, true))
       .orderBy(desc(programsTable.createdAt)).limit(3),
     db.select().from(eventsTable).where(and(
@@ -114,19 +122,30 @@ router.get("/dashboard", requireYouthProfile, async (req, res): Promise<void> =>
       .innerJoin(programsTable, eq(applicationsTable.programId, programsTable.id))
       .where(eq(applicationsTable.userId, user.id))
       .orderBy(desc(applicationsTable.submittedAt)).limit(5),
+    db.select({ id: applicationSubmissionsTable.id }).from(applicationSubmissionsTable)
+      .where(eq(applicationSubmissionsTable.userId, user.id)),
+    db.select().from(updatesTable).where(eq(updatesTable.published, true))
+      .orderBy(desc(updatesTable.createdAt)).limit(3),
   ]);
   const data = {
     profile: profileResponse(user),
     profileCompletion: { completed: filled, total: 9, percent: Math.round(filled / 9 * 100) },
+    publishedOpportunityCount: opportunityCount.length,
+    applicationCount: programApplications.length + formApplications.length,
     featuredOpportunities: opportunities.map((row) => ({ ...row, datePosted: row.datePosted.toISOString() })),
     featuredPrograms: programs,
     upcomingEvents: events,
+    latestUpdates: updates.map((row) => ({
+      ...row,
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
+    })),
     recentNotifications: notifications.map((row) => ({
       ...row,
       createdAt: row.createdAt.toISOString(),
       readAt: row.readAt?.toISOString() ?? null,
     })),
-    applications: applications.map((row) => applicationView(row.application, row.programName)),
+    applications: programApplications.map((row) => applicationView(row.application, row.programName)),
   };
   res.json(parseApiResponse(GetDashboardResponse, data));
 });
@@ -193,6 +212,18 @@ router.post("/events/:id/registrations", requireYouthProfile, async (req, res): 
   )).limit(1);
   if (!user || !event) {
     res.status(404).json({ error: "Event not found" });
+    return;
+  }
+  if (event.registrationUrl) {
+    res.status(400).json({ error: "This event uses external registration" });
+    return;
+  }
+  if (event.registrationDeadline && event.registrationDeadline < todayDate()) {
+    res.status(410).json({ error: "Event registration has closed" });
+    return;
+  }
+  if (event.date < todayDate()) {
+    res.status(410).json({ error: "This event has already taken place" });
     return;
   }
   try {

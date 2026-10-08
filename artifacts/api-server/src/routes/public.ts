@@ -26,11 +26,12 @@ import {
   programsTable,
 } from "@workspace/db";
 import { organizationDefaults } from "../lib/b4p-data";
+import { requireYouthProfile } from "../lib/b4p-auth";
 import { parseApiResponse } from "../lib/api-response";
 
 const router: IRouter = Router();
 
-router.get("/opportunities", async (req, res): Promise<void> => {
+router.get("/opportunities", requireYouthProfile, async (req, res): Promise<void> => {
   const query = ListOpportunitiesQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
@@ -54,7 +55,7 @@ router.get("/opportunities", async (req, res): Promise<void> => {
   res.json(parseApiResponse(ListOpportunitiesResponse, response));
 });
 
-router.get("/opportunities/:id", async (req, res): Promise<void> => {
+router.get("/opportunities/:id", requireYouthProfile, async (req, res): Promise<void> => {
   const params = GetOpportunityParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -71,7 +72,7 @@ router.get("/opportunities/:id", async (req, res): Promise<void> => {
   res.json(parseApiResponse(GetOpportunityResponse, { ...row, datePosted: row.datePosted.toISOString() }));
 });
 
-router.get("/programs", async (req, res): Promise<void> => {
+router.get("/programs", requireYouthProfile, async (req, res): Promise<void> => {
   const query = ListProgramsQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
@@ -92,7 +93,7 @@ router.get("/programs", async (req, res): Promise<void> => {
   res.json(parseApiResponse(ListProgramsResponse, rows));
 });
 
-router.get("/programs/:id", async (req, res): Promise<void> => {
+router.get("/programs/:id", requireYouthProfile, async (req, res): Promise<void> => {
   const params = GetProgramParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -109,7 +110,7 @@ router.get("/programs/:id", async (req, res): Promise<void> => {
   res.json(parseApiResponse(GetProgramResponse, row));
 });
 
-router.get("/events", async (req, res): Promise<void> => {
+router.get("/events", requireYouthProfile, async (req, res): Promise<void> => {
   const query = ListEventsQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
@@ -130,7 +131,7 @@ router.get("/events", async (req, res): Promise<void> => {
   res.json(parseApiResponse(ListEventsResponse, rows));
 });
 
-router.get("/events/:id", async (req, res): Promise<void> => {
+router.get("/events/:id", requireYouthProfile, async (req, res): Promise<void> => {
   const params = GetEventParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

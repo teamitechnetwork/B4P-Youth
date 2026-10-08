@@ -24,3 +24,5 @@ export * from "./events";
 export * from "./notifications";
 export * from "./contact-messages";
 export * from "./settings";
+export * from "./application-forms";
+export * from "./updates";

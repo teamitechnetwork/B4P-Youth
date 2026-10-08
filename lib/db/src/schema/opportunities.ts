@@ -7,6 +7,8 @@ export const opportunitiesTable = pgTable("opportunities", {
   title: text("title").notNull(),
   category: text("category").notNull(),
   organization: text("organization").notNull(),
+  contactInfo: text("contact_info"),
+  coverImage: text("cover_image"),
   description: text("description").notNull(),
   requirements: text("requirements").notNull().default(""),
   location: text("location").notNull(),

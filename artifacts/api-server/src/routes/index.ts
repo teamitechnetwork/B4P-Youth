@@ -1,7 +1,9 @@
 import { Router, type IRouter } from "express";
 import adminRouter from "./admin";
+import applicationRouter from "./applications";
 import healthRouter from "./health";
 import publicRouter from "./public";
+import updatesRouter from "./updates";
 import youthRouter from "./youth";
 
 const router: IRouter = Router();
@@ -9,6 +11,8 @@ const router: IRouter = Router();
 router.use(healthRouter);
 router.use(publicRouter);
 router.use(youthRouter);
+router.use(applicationRouter);
+router.use(updatesRouter);
 router.use(adminRouter);
 
 export default router;

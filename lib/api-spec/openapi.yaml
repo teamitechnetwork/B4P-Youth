@@ -3,7 +3,7 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: B4P Youth API. Public reads and contact submission are open; /me routes require a signed-in youth account and /admin routes require an administrator.
+  description: B4P Youth API. Member routes require an active signed-in youth account; /admin routes require an active administrator. About and contact submission are open.
 servers:
   - url: /api
     description: Base API path
@@ -15,6 +15,8 @@ tags:
   - name: programs
   - name: events
   - name: notifications
+  - name: applications
+  - name: updates
   - name: contact
   - name: admin
 paths:
@@ -85,6 +87,74 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ProgramApplication"
+  /me/application-submissions:
+    get:
+      operationId: listMyApplicationSubmissions
+      tags: [applications, profile]
+      summary: List application form submissions belonging to the signed-in youth
+      responses:
+        "200":
+          description: Application form submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MyApplicationSubmission"
+  /applications:
+    get:
+      operationId: listApplicationForms
+      tags: [applications]
+      summary: List published application forms
+      parameters:
+        - in: query
+          name: programId
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Published application forms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApplicationForm"
+  /applications/{id}:
+    get:
+      operationId: getApplicationForm
+      tags: [applications]
+      summary: Get a published application form and its questions
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Application form
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationForm"
+        "404": { $ref: "#/components/responses/NotFound" }
+  /applications/{id}/submissions:
+    post:
+      operationId: submitApplicationForm
+      tags: [applications]
+      summary: Submit answers to a published application form
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationSubmissionInput"
+      responses:
+        "201":
+          description: Submitted application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationSubmissionReceipt"
+        "409": { $ref: "#/components/responses/Conflict" }
   /opportunities:
     get:
       operationId: listOpportunities
@@ -224,6 +294,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/EventRegistration"
         "409": { $ref: "#/components/responses/Conflict" }
+  /updates:
+    get:
+      operationId: listUpdates
+      tags: [updates]
+      summary: List published B4P updates
+      responses:
+        "200":
+          description: Published updates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Update"
   /me/notifications:
     get:
       operationId: listMyNotifications
@@ -511,6 +595,110 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AdminApplication"
+  /admin/application-forms:
+    get:
+      operationId: listAdminApplicationForms
+      tags: [admin, applications]
+      summary: List application forms, including drafts
+      responses:
+        "200":
+          description: Application forms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApplicationForm"
+    post:
+      operationId: createApplicationForm
+      tags: [admin, applications]
+      summary: Create an application form with custom questions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationFormInput"
+      responses:
+        "201":
+          description: Created application form
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationForm"
+  /admin/application-forms/{id}:
+    patch:
+      operationId: updateApplicationForm
+      tags: [admin, applications]
+      summary: Edit, publish or unpublish an application form
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationFormUpdate"
+      responses:
+        "200":
+          description: Updated application form
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationForm"
+    delete:
+      operationId: deleteApplicationForm
+      tags: [admin, applications]
+      summary: Delete an application form while retaining submitted records
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204": { description: Application form deleted }
+  /admin/application-submissions:
+    get:
+      operationId: listAdminApplicationSubmissions
+      tags: [admin, applications]
+      summary: Search and filter application form submissions
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: status
+          schema:
+            $ref: "#/components/schemas/ApplicationStatus"
+        - in: query
+          name: formId
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Submissions with applicant details and saved answers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminApplicationSubmission"
+  /admin/application-submissions/{id}:
+    patch:
+      operationId: updateApplicationSubmission
+      tags: [admin, applications]
+      summary: Update a submission status and internal note
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationSubmissionUpdate"
+      responses:
+        "200":
+          description: Updated application submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminApplicationSubmission"
   /admin/events:
     get:
       operationId: listAdminEvents
@@ -570,6 +758,65 @@ paths:
         - $ref: "#/components/parameters/Id"
       responses:
         "204": { description: Event deleted }
+  /admin/updates:
+    get:
+      operationId: listAdminUpdates
+      tags: [admin, updates]
+      summary: List updates, including drafts
+      responses:
+        "200":
+          description: Updates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Update"
+    post:
+      operationId: createUpdate
+      tags: [admin, updates]
+      summary: Create and optionally publish an update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateInput"
+      responses:
+        "201":
+          description: Created update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Update"
+  /admin/updates/{id}:
+    patch:
+      operationId: updateUpdate
+      tags: [admin, updates]
+      summary: Edit, publish or unpublish an update
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUpdate"
+      responses:
+        "200":
+          description: Updated update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Update"
+    delete:
+      operationId: deleteUpdate
+      tags: [admin, updates]
+      summary: Delete an update
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204": { description: Update deleted }
   /admin/event-registrations:
     get:
       operationId: listEventRegistrations
@@ -703,10 +950,16 @@ components:
         status: { type: string }
     OpportunityCategory:
       type: string
-      enum: [Jobs, Internships, Scholarships, Fellowships, Trainings, Grants, Volunteer]
+      enum: [Jobs, Internships, Scholarships, Fellowships, Trainings, Grants, Volunteer, Other]
+    ApplicationQuestionType:
+      type: string
+      enum: [short_text, long_text, email, phone, dropdown, multiple_choice, checkbox, date]
     ApplicationStatus:
       type: string
       enum: [Submitted, Under Review, Accepted, Rejected]
+    UpdateCategory:
+      type: string
+      enum: [Announcement, News, Important notice, Program update, Opportunity update, Event reminder]
     UserProfile:
       type: object
       required: [id, fullName, email, phone, gender, country, county, city, dateOfBirth, educationLevel, interests, imageUrl, active, createdAt]
@@ -744,12 +997,14 @@ components:
           items: { type: string, maxLength: 100 }
     Opportunity:
       type: object
-      required: [id, title, category, organization, description, requirements, location, deadline, applicationUrl, datePosted, published]
+      required: [id, title, category, organization, contactInfo, coverImage, description, requirements, location, deadline, applicationUrl, datePosted, published]
       properties:
         id: { type: integer }
         title: { type: string }
         category: { $ref: "#/components/schemas/OpportunityCategory" }
         organization: { type: string }
+        contactInfo: { type: ["string", "null"] }
+        coverImage: { type: ["string", "null"], format: uri }
         description: { type: string }
         requirements: { type: string }
         location: { type: string }
@@ -764,6 +1019,8 @@ components:
         title: { type: string, minLength: 2, maxLength: 200 }
         category: { $ref: "#/components/schemas/OpportunityCategory" }
         organization: { type: string, minLength: 1, maxLength: 200 }
+        contactInfo: { type: ["string", "null"], maxLength: 500 }
+        coverImage: { type: ["string", "null"], format: uri }
         description: { type: string, minLength: 1 }
         requirements: { type: string }
         location: { type: string, minLength: 1, maxLength: 200 }
@@ -776,6 +1033,8 @@ components:
         title: { type: string, minLength: 2, maxLength: 200 }
         category: { $ref: "#/components/schemas/OpportunityCategory" }
         organization: { type: string, minLength: 1, maxLength: 200 }
+        contactInfo: { type: ["string", "null"], maxLength: 500 }
+        coverImage: { type: ["string", "null"], format: uri }
         description: { type: string, minLength: 1 }
         requirements: { type: string }
         location: { type: string, minLength: 1, maxLength: 200 }
@@ -824,6 +1083,124 @@ components:
         endDate: { type: ["string", "null"], format: date }
         applicationDeadline: { type: ["string", "null"], format: date }
         published: { type: boolean }
+    ApplicationQuestion:
+      type: object
+      required: [id, prompt, type, required, options, position]
+      properties:
+        id: { type: integer }
+        prompt: { type: string }
+        type: { $ref: "#/components/schemas/ApplicationQuestionType" }
+        required: { type: boolean }
+        options:
+          type: array
+          items: { type: string }
+        position: { type: integer }
+    ApplicationQuestionInput:
+      type: object
+      required: [prompt, type, required, options, position]
+      properties:
+        prompt: { type: string, minLength: 2, maxLength: 300 }
+        type: { $ref: "#/components/schemas/ApplicationQuestionType" }
+        required: { type: boolean }
+        options:
+          type: array
+          items: { type: string, minLength: 1, maxLength: 200 }
+        position: { type: integer, minimum: 0 }
+    ApplicationForm:
+      type: object
+      required: [id, title, description, instructions, eligibilityRequirements, deadline, programId, published, createdAt, updatedAt, questions]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        instructions: { type: string }
+        eligibilityRequirements: { type: string }
+        deadline: { type: ["string", "null"], format: date }
+        programId: { type: ["integer", "null"] }
+        published: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        questions:
+          type: array
+          items: { $ref: "#/components/schemas/ApplicationQuestion" }
+    ApplicationFormInput:
+      type: object
+      required: [title, description, instructions, eligibilityRequirements, deadline, programId, published, questions]
+      properties:
+        title: { type: string, minLength: 2, maxLength: 200 }
+        description: { type: string, minLength: 1, maxLength: 5000 }
+        instructions: { type: string, maxLength: 5000 }
+        eligibilityRequirements: { type: string, maxLength: 5000 }
+        deadline: { type: ["string", "null"], format: date }
+        programId: { type: ["integer", "null"] }
+        published: { type: boolean }
+        questions:
+          type: array
+          items: { $ref: "#/components/schemas/ApplicationQuestionInput" }
+    ApplicationFormUpdate:
+      type: object
+      properties:
+        title: { type: string, minLength: 2, maxLength: 200 }
+        description: { type: string, minLength: 1, maxLength: 5000 }
+        instructions: { type: string, maxLength: 5000 }
+        eligibilityRequirements: { type: string, maxLength: 5000 }
+        deadline: { type: ["string", "null"], format: date }
+        programId: { type: ["integer", "null"] }
+        published: { type: boolean }
+        questions:
+          type: array
+          items: { $ref: "#/components/schemas/ApplicationQuestionInput" }
+    ApplicationSubmissionInput:
+      type: object
+      required: [answers]
+      properties:
+        answers:
+          type: object
+          additionalProperties: true
+    ApplicationAnswer:
+      type: object
+      required: [prompt, type, value]
+      properties:
+        prompt: { type: string }
+        type: { $ref: "#/components/schemas/ApplicationQuestionType" }
+        value:
+          oneOf:
+            - type: string
+            - type: array
+              items: { type: string }
+            - type: boolean
+    MyApplicationSubmission:
+      type: object
+      required: [id, formId, formTitle, status, adminNote, submittedAt]
+      properties:
+        id: { type: integer }
+        formId: { type: ["integer", "null"] }
+        formTitle: { type: string }
+        status: { $ref: "#/components/schemas/ApplicationStatus" }
+        adminNote: { type: ["string", "null"] }
+        submittedAt: { type: string, format: date-time }
+    ApplicationSubmissionReceipt:
+      allOf:
+        - $ref: "#/components/schemas/MyApplicationSubmission"
+    AdminApplicationSubmission:
+      allOf:
+        - $ref: "#/components/schemas/MyApplicationSubmission"
+        - type: object
+          required: [userId, applicantName, applicantEmail, applicantLocation, answers]
+          properties:
+            userId: { type: integer }
+            applicantName: { type: string }
+            applicantEmail: { type: string, format: email }
+            applicantLocation: { type: string }
+            answers:
+              type: array
+              items: { $ref: "#/components/schemas/ApplicationAnswer" }
+    ApplicationSubmissionUpdate:
+      type: object
+      required: [status]
+      properties:
+        status: { $ref: "#/components/schemas/ApplicationStatus" }
+        adminNote: { type: ["string", "null"], maxLength: 3000 }
     ProgramApplicationInput:
       type: object
       required: [motivation]
@@ -858,12 +1235,14 @@ components:
         adminNote: { type: ["string", "null"], maxLength: 3000 }
     Event:
       type: object
-      required: [id, title, imageUrl, date, time, location, description, published]
+      required: [id, title, imageUrl, date, registrationDeadline, registrationUrl, time, location, description, published]
       properties:
         id: { type: integer }
         title: { type: string }
         imageUrl: { type: ["string", "null"], format: uri }
         date: { type: string, format: date }
+        registrationDeadline: { type: ["string", "null"], format: date }
+        registrationUrl: { type: ["string", "null"], format: uri }
         time: { type: string }
         location: { type: string }
         description: { type: string }
@@ -875,6 +1254,8 @@ components:
         title: { type: string, minLength: 2, maxLength: 200 }
         imageUrl: { type: ["string", "null"], format: uri }
         date: { type: string, format: date }
+        registrationDeadline: { type: ["string", "null"], format: date }
+        registrationUrl: { type: ["string", "null"], format: uri }
         time: { type: string, minLength: 1, maxLength: 100 }
         location: { type: string, minLength: 1, maxLength: 200 }
         description: { type: string, minLength: 1 }
@@ -885,6 +1266,8 @@ components:
         title: { type: string, minLength: 2, maxLength: 200 }
         imageUrl: { type: ["string", "null"], format: uri }
         date: { type: string, format: date }
+        registrationDeadline: { type: ["string", "null"], format: date }
+        registrationUrl: { type: ["string", "null"], format: uri }
         time: { type: string, minLength: 1, maxLength: 100 }
         location: { type: string, minLength: 1, maxLength: 200 }
         description: { type: string, minLength: 1 }
@@ -934,6 +1317,35 @@ components:
       required: [recipients]
       properties:
         recipients: { type: integer }
+    Update:
+      type: object
+      required: [id, title, category, content, imageUrl, published, createdAt, updatedAt]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        category: { $ref: "#/components/schemas/UpdateCategory" }
+        content: { type: string }
+        imageUrl: { type: ["string", "null"], format: uri }
+        published: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    UpdateInput:
+      type: object
+      required: [title, category, content, imageUrl, published]
+      properties:
+        title: { type: string, minLength: 2, maxLength: 200 }
+        category: { $ref: "#/components/schemas/UpdateCategory" }
+        content: { type: string, minLength: 1, maxLength: 10000 }
+        imageUrl: { type: ["string", "null"], format: uri }
+        published: { type: boolean }
+    UpdateUpdate:
+      type: object
+      properties:
+        title: { type: string, minLength: 2, maxLength: 200 }
+        category: { $ref: "#/components/schemas/UpdateCategory" }
+        content: { type: string, minLength: 1, maxLength: 10000 }
+        imageUrl: { type: ["string", "null"], format: uri }
+        published: { type: boolean }
     ContactMessageInput:
       type: object
       required: [name, email, subject, message]
@@ -1024,10 +1436,12 @@ components:
         percent: { type: integer }
     Dashboard:
       type: object
-      required: [profile, profileCompletion, featuredOpportunities, featuredPrograms, upcomingEvents, recentNotifications, applications]
+      required: [profile, profileCompletion, publishedOpportunityCount, applicationCount, featuredOpportunities, featuredPrograms, upcomingEvents, latestUpdates, recentNotifications, applications]
       properties:
         profile: { $ref: "#/components/schemas/UserProfile" }
         profileCompletion: { $ref: "#/components/schemas/ProfileCompletion" }
+        publishedOpportunityCount: { type: integer }
+        applicationCount: { type: integer }
         featuredOpportunities:
           type: array
           items: { $ref: "#/components/schemas/Opportunity" }
@@ -1037,6 +1451,9 @@ components:
         upcomingEvents:
           type: array
           items: { $ref: "#/components/schemas/Event" }
+        latestUpdates:
+          type: array
+          items: { $ref: "#/components/schemas/Update" }
         recentNotifications:
           type: array
           items: { $ref: "#/components/schemas/Notification" }
@@ -1045,9 +1462,10 @@ components:
           items: { $ref: "#/components/schemas/ProgramApplication" }
     AdminDashboard:
       type: object
-      required: [users, publishedOpportunities, publishedPrograms, upcomingEvents, pendingApplications, newMessages, recentApplications]
+      required: [users, publishedApplications, publishedOpportunities, publishedPrograms, upcomingEvents, pendingApplications, newMessages, recentApplications, recentSubmissions]
       properties:
         users: { type: integer }
+        publishedApplications: { type: integer }
         publishedOpportunities: { type: integer }
         publishedPrograms: { type: integer }
         upcomingEvents: { type: integer }
@@ -1056,6 +1474,9 @@ components:
         recentApplications:
           type: array
           items: { $ref: "#/components/schemas/AdminApplication" }
+        recentSubmissions:
+          type: array
+          items: { $ref: "#/components/schemas/AdminApplicationSubmission" }
     AdminUser:
       allOf:
         - $ref: "#/components/schemas/UserProfile"

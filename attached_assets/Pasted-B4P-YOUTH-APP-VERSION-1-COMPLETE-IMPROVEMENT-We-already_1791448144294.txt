@@ -1,0 +1,882 @@
+B4P YOUTH APP — VERSION 1 COMPLETE IMPROVEMENT
+
+We already have a working B4P Youth application and an existing Youth Dashboard.
+
+IMPORTANT:
+DO NOT completely rebuild or replace the existing application.
+
+Improve the current application and preserve the existing Youth Dashboard design and functionality where possible.
+
+The goal is to turn the current prototype into a complete, functional Version 1 platform for:
+
+Business for Peace Community Development Foundation (B4P CODEFOUND)
+
+App name:
+B4P Youth
+
+==================================================
+1. TWO TYPES OF USERS
+==================================================
+
+The application must have two account roles:
+
+1. YOUTH / USER
+2. ADMIN
+
+Each role must have its own dashboard.
+
+YOUTH:
+→ Youth Dashboard
+
+ADMIN:
+→ Admin Dashboard
+
+Use secure role-based access control.
+
+Normal users must NEVER be able to access the Admin Dashboard or admin functions.
+
+==================================================
+2. APP ENTRY — LOGIN & REGISTRATION
+==================================================
+
+IMPORTANT:
+
+When anyone opens the B4P Youth app, they should NOT immediately see the Youth Dashboard.
+
+The default entry page must be the authentication page.
+
+Show:
+
+B4P Youth
+
+Business for Peace Community Development Foundation
+
+"Discover opportunities. Build your future."
+
+Two main options:
+
+[ Login ]
+
+[ Create Account ]
+
+LOGIN PAGE:
+
+Fields:
+- Email
+- Password
+
+Buttons:
+- Login
+- Forgot Password?
+- Create Account
+
+REGISTRATION PAGE:
+
+Fields:
+- Full Name
+- Email
+- Phone Number
+- Gender
+- Date of Birth
+- Country
+- County
+- City
+- Education Level
+- Skills/Interests
+- Password
+- Confirm Password
+
+After successful registration:
+
+→ Create account
+→ Automatically log the user in
+→ Redirect to Youth Dashboard
+
+After successful login:
+
+If role = USER:
+→ Youth Dashboard
+
+If role = ADMIN:
+→ Admin Dashboard
+
+==================================================
+3. AUTHENTICATION PROTECTION
+==================================================
+
+If a user is NOT logged in and tries to access:
+
+/dashboard
+/opportunities
+/programs
+/events
+/profile
+/notifications
+
+redirect them to:
+
+/login
+
+If an ADMIN is not logged in and tries to access any admin route:
+
+/admin/*
+redirect to Admin Login.
+
+If a normal USER tries to access:
+
+/admin
+
+Do not allow access.
+
+Show an access denied message or redirect them to their Youth Dashboard.
+
+If an authenticated user opens "/" again:
+
+USER:
+→ Youth Dashboard
+
+ADMIN:
+→ Admin Dashboard
+
+Keep users securely logged in between app sessions unless they log out or their session expires.
+
+Include a clear Logout function.
+
+==================================================
+4. YOUTH DASHBOARD
+==================================================
+
+KEEP THE EXISTING YOUTH DASHBOARD DESIGN.
+
+The dashboard shown in the current application should remain the main Youth experience.
+
+The dashboard should include:
+
+- B4P Youth branding
+- Welcome message
+- Explore Opportunities button
+- Update My Profile button
+- Profile Progress
+- Applications in Progress
+- Fresh Opportunities
+- Featured opportunities
+- Upcoming programs/events
+- Latest B4P updates
+
+Use real database information.
+
+Do NOT use hardcoded statistics.
+
+For example:
+
+Profile Progress:
+Calculate from completed profile fields.
+
+Applications in Progress:
+Show the actual number of applications submitted by the logged-in user.
+
+Fresh Opportunities:
+Show the number of currently published opportunities.
+
+Use attractive empty states when there is no data.
+
+Example empty state:
+
+"No opportunities available right now.
+Check back soon for new opportunities."
+
+==================================================
+5. YOUTH MOBILE NAVIGATION
+==================================================
+
+For mobile devices use bottom navigation:
+
+Home
+Opportunities
+Programs
+Events
+Profile
+
+Additional sections should be available through a menu:
+
+- Notifications
+- Updates
+- About B4P
+- Contact
+- Logout
+
+==================================================
+6. YOUTH DESKTOP NAVIGATION
+==================================================
+
+For desktop/tablet use a sidebar.
+
+Sidebar:
+
+B4P Youth
+
+Dashboard
+Opportunities
+Programs
+Events
+Notifications
+Updates
+Profile
+About B4P
+Contact
+Logout
+
+==================================================
+7. ADMIN LOGIN
+==================================================
+
+Create a separate secure Admin Login.
+
+Admin login fields:
+
+- Email
+- Password
+
+After successful authentication:
+
+→ /admin/dashboard
+
+Admin credentials must NOT be exposed in frontend code.
+
+Use secure password hashing.
+
+Protect all admin routes.
+
+==================================================
+8. ADMIN DASHBOARD
+==================================================
+
+Create a completely separate professional Admin Dashboard.
+
+Admin sidebar:
+
+Dashboard
+Applications
+Opportunities
+Programs
+Events
+Updates
+Users
+Notifications
+Settings
+Logout
+
+Admin Dashboard statistics:
+
+- Total Youth Users
+- Published Applications
+- Published Opportunities
+- Active Programs
+- Upcoming Events
+- Recent Submissions
+
+Show a simple Recent Activity section.
+
+Keep the admin dashboard clean and easy for B4P staff to operate.
+
+==================================================
+9. APPLICATION MANAGEMENT
+==================================================
+
+IMPORTANT:
+
+B4P administrators must be able to CREATE AND PUBLISH APPLICATION FORMS.
+
+An Application is a form that B4P publishes for young people to complete.
+
+Admin can:
+
+- Create application
+- Add title
+- Add description
+- Add instructions
+- Set deadline
+- Add eligibility requirements
+- Add custom questions
+- Publish
+- Unpublish
+- Edit
+- Delete
+- View submissions
+
+Support these question types:
+
+- Short text
+- Long text
+- Email
+- Phone
+- Dropdown
+- Multiple choice
+- Checkbox
+- Date
+
+Youth users can:
+
+- View published applications
+- Open an application
+- Complete the form
+- Submit
+- Receive confirmation
+- View application status
+
+Application statuses:
+
+- Submitted
+- Under Review
+- Accepted
+- Rejected
+
+Admins can change the status.
+
+==================================================
+10. OPPORTUNITIES
+==================================================
+
+Admins must be able to publish opportunities.
+
+Categories:
+
+- Jobs
+- Internships
+- Scholarships
+- Fellowships
+- Trainings
+- Grants
+- Volunteer
+- Other
+
+Opportunity fields:
+
+- Title
+- Category
+- Organization
+- Description
+- Requirements
+- Location
+- Deadline
+- Application link
+- Contact information
+- Cover image
+- Date posted
+- Status
+
+Admin can:
+
+- Create
+- Edit
+- Delete
+- Publish
+- Unpublish
+
+Youth can:
+
+- Browse
+- Search
+- Filter
+- View details
+- Apply or open external application link
+
+Allow locations such as:
+
+- Liberia
+- Montserrado
+- Other counties
+- Online
+- International
+
+==================================================
+11. PROGRAM MANAGEMENT
+==================================================
+
+Admins can create and manage B4P programs.
+
+Fields:
+
+- Program name
+- Description
+- Objectives
+- Eligibility
+- Location
+- Start date
+- End date
+- Application deadline
+- Cover image
+- Application option
+- Status
+
+Admin can:
+
+- Create
+- Edit
+- Delete
+- Publish
+- Unpublish
+
+Youth can:
+
+- Browse programs
+- View program details
+- Apply when an application is available
+
+==================================================
+12. EVENT MANAGEMENT
+==================================================
+
+Admins can create and publish events.
+
+Fields:
+
+- Event name
+- Description
+- Date
+- Time
+- Location
+- Event image
+- Registration deadline
+- Registration option
+
+Admin can:
+
+- Create
+- Edit
+- Delete
+- Publish
+- Unpublish
+
+Youth can:
+
+- Browse events
+- View event details
+- Register
+
+Admins can view event registrations.
+
+==================================================
+13. UPDATES / ANNOUNCEMENTS
+==================================================
+
+Create an Updates section.
+
+Admins can publish:
+
+- Announcements
+- News
+- Important notices
+- Program updates
+- Opportunity updates
+- Event reminders
+
+Fields:
+
+- Title
+- Content
+- Image (optional)
+- Date
+- Status
+
+Admin can:
+
+- Create
+- Edit
+- Delete
+- Publish
+- Unpublish
+
+Youth can see published updates from the dashboard and Updates page.
+
+==================================================
+14. USER PROFILE
+==================================================
+
+Youth users should have a profile containing:
+
+- Profile photo
+- Full name
+- Email
+- Phone
+- Gender
+- Date of birth
+- Country
+- County
+- City
+- Education
+- Skills/interests
+
+Allow users to edit their profile.
+
+Calculate profile completion percentage.
+
+==================================================
+15. USER MANAGEMENT
+==================================================
+
+Admin can:
+
+- View registered youth
+- Search users
+- View user profiles
+- Activate/deactivate users
+- View basic user activity
+
+Do not give admins unnecessary access to sensitive account information.
+
+==================================================
+16. NOTIFICATIONS
+==================================================
+
+Create a basic notification system.
+
+Notify users about:
+
+- New opportunities
+- New applications
+- New programs
+- New events
+- Application status changes
+- Important B4P updates
+
+Users can mark notifications as read.
+
+==================================================
+17. ABOUT B4P
+==================================================
+
+Create an About B4P page containing:
+
+Business for Peace Community Development Foundation
+
+Include:
+
+- Organization description
+- Mission
+- Vision
+- Youth-focused work
+- Women-focused work
+- Community development focus
+
+Content should be editable by admin where practical.
+
+==================================================
+18. CONTACT
+==================================================
+
+Create a Contact page.
+
+Include:
+
+- B4P email
+- Phone
+- Location/address
+- Social media links
+
+Contact form:
+
+- Name
+- Email
+- Subject
+- Message
+
+Save contact messages in the database so administrators can view them.
+
+==================================================
+19. DATABASE
+==================================================
+
+Use a proper relational database.
+
+Create appropriate models/tables for:
+
+users
+roles
+applications
+application_questions
+application_submissions
+opportunities
+programs
+events
+event_registrations
+updates
+notifications
+contact_messages
+
+Create proper relationships between:
+
+Users
+Applications
+Submissions
+Programs
+Events
+Opportunities
+Notifications
+
+Do not use fake/hardcoded data for production functionality.
+
+==================================================
+20. ADMIN CONTENT MANAGEMENT
+==================================================
+
+The most important purpose of the Admin Dashboard is to allow B4P staff to manage the app WITHOUT editing code.
+
+Admins must be able to independently:
+
+CREATE
+EDIT
+PUBLISH
+UNPUBLISH
+DELETE
+VIEW
+
+the following:
+
+- Applications
+- Opportunities
+- Programs
+- Events
+- Updates
+
+This is essential.
+
+==================================================
+21. SECURITY
+==================================================
+
+Implement:
+
+- Secure authentication
+- Password hashing
+- Role-based authorization
+- Protected admin routes
+- Protected user routes
+- Input validation
+- Secure database queries
+- Session security
+- Environment variables for secrets
+
+Never expose:
+
+- Database credentials
+- API keys
+- Passwords
+- Admin secrets
+
+in frontend code.
+
+A normal user must never gain admin access simply by changing the URL.
+
+==================================================
+22. RESPONSIVE DESIGN
+==================================================
+
+The application must work properly on:
+
+- Android phones
+- iPhones
+- Tablets
+- Laptops
+- Desktop computers
+
+Mobile:
+
+Use bottom navigation for the main Youth sections.
+
+Desktop:
+
+Use sidebar navigation.
+
+Admin interface should also be responsive.
+
+Make buttons and forms touch-friendly on mobile.
+
+==================================================
+23. PWA
+==================================================
+
+Keep the application as a Progressive Web App.
+
+Include:
+
+- Web app manifest
+- App icon
+- Installable experience
+- Responsive design
+- Mobile-friendly interface
+
+App name:
+
+B4P Youth
+
+Organization:
+
+Business for Peace Community Development Foundation
+
+==================================================
+24. DESIGN
+==================================================
+
+Keep the current Youth Dashboard visual style because it is already a good starting point.
+
+Improve the branding so it clearly represents B4P CODEFOUND.
+
+Design should be:
+
+- Professional
+- Youth-friendly
+- Clean
+- Modern
+- Simple
+- Trustworthy
+- NGO-focused
+
+Avoid excessive animations.
+
+Use:
+
+- Clean cards
+- Good spacing
+- Clear typography
+- Professional icons
+- Responsive layouts
+- Clear buttons
+
+==================================================
+25. DO NOT ADD THESE FEATURES IN VERSION 1
+==================================================
+
+Do NOT add:
+
+- AI assistant
+- Chat
+- Mentorship
+- Community forum
+- Social networking
+- Full LMS
+- Online payments
+- Marketplace
+- Complex analytics
+- Cryptocurrency
+- Advanced recommendation systems
+
+These can be added in Version 2 or later.
+
+==================================================
+26. VERSION 1 OBJECTIVE
+==================================================
+
+The core workflow should be:
+
+YOUTH:
+
+Open App
+↓
+Login / Register
+↓
+Youth Dashboard
+↓
+Discover Opportunities
+↓
+View Programs
+↓
+View Events
+↓
+Complete Applications
+↓
+Register for Events
+↓
+Receive Updates
+↓
+Track Application Status
+
+ADMIN:
+
+Open Admin Login
+↓
+Admin Dashboard
+↓
+Create Application
+↓
+Create Opportunity
+↓
+Create Program
+↓
+Create Event
+↓
+Publish Updates
+↓
+Review Submissions
+↓
+Manage Users
+↓
+Manage Content
+
+==================================================
+27. FINAL TESTING
+==================================================
+
+Before considering Version 1 complete, test:
+
+AUTHENTICATION
+- User registration
+- User login
+- Admin login
+- Logout
+- Forgot password
+- Session persistence
+
+USER
+- Youth Dashboard
+- Profile editing
+- Profile progress
+- Opportunities
+- Programs
+- Events
+- Applications
+- Event registration
+- Notifications
+- Updates
+
+ADMIN
+- Admin Dashboard
+- Create application
+- Edit application
+- Publish application
+- View submissions
+- Change application status
+- Create opportunity
+- Edit opportunity
+- Publish opportunity
+- Create program
+- Edit program
+- Publish program
+- Create event
+- Edit event
+- Publish event
+- View registrations
+- Create updates
+- Edit updates
+- Publish updates
+- Manage users
+
+SECURITY
+- User cannot access admin dashboard
+- Logged-out user cannot access protected pages
+- Admin routes are protected
+- Passwords are securely stored
+
+RESPONSIVENESS
+Test on:
+- Mobile
+- Tablet
+- Desktop
+
+DATABASE
+Confirm that all forms and content are actually saved to the database.
+
+IMPORTANT:
+Do not just create visual pages.
+
+All major buttons, forms, authentication, database operations, publishing functions, applications, registrations, and admin management features must actually work.
